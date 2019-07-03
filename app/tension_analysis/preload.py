@@ -198,4 +198,4 @@ load_hedge_lexicons()
 
 # Load NLP server Python interface
 current_app.logger.info('Loading StanfordCoreNLP Python interface...')
-nlp = StanfordCoreNLP('http://stanford_nlp:9999', port=9999)
+nlp = StanfordCoreNLP('http://stanford_corenlp:9999', port=9999)

@@ -1,5 +1,5 @@
 __pycache__
 data/models/model.h5
 data/models/variables.p
-stanford_nlp/stanford-corenlp-full-*
+stanford_corenlp/stanford-corenlp-full-*
 *~
