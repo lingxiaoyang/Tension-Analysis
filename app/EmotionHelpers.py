@@ -1,116 +1,25 @@
 from packages import *
 
-feature_dimension = 29
+from flask import current_app
 
-# ********* Load Lexicons ********* #
-bingliu_mpqa = {}
-nrc_emotion = {}
-nrc_affect_intensity = {}
-nrc_hashtag_emotion = {}
-afinn = {}
-ratings = {}
-stopwords = []
-slangs = {}
-negated = {}
-emoticons = []
+feature_dimension = 29
 
 # Vader
 analyzer = SentimentIntensityAnalyzer()
 
 def load_lexicons():
-    # Ratings by Warriner et al. (2013)
-    with open('lexicons/Ratings_Warriner_et_al.csv', 'r') as f:
-        reader = csv.reader(f)
-        rows = list(reader)
-    for i in range(1, len(rows)):
-        # Normalize values
-        valence = (float(rows[i][2]) - 1.0)/(9.0-1.0)
-        arousal = (float(rows[i][5]) - 1.0)/(9.0-1.0)
-        dominance = (float(rows[i][8]) - 1.0)/(9.0-1.0)
-        ratings[rows[i][1]] = {"Valence": valence, "Arousal": arousal, "Dominance": dominance}
 
+    current_app.extensions['bingliu_mpqa'] = bingliu_mpqa
+    current_app.extensions['nrc_emotion'] = nrc_emotion
+    current_app.extensions['nrc_affect_intensity'] = nrc_affect_intensity
+    current_app.extensions['nrc_hashtag_emotion'] = nrc_hashtag_emotion
+    current_app.extensions['afinn'] = afinn
+    current_app.extensions['ratings'] = ratings
+    current_app.extensions['stopwords'] = stopwords
+    current_app.extensions['slangs'] = slangs
+    current_app.extensions['negated'] = negated
+    current_app.extensions['emoticons'] = emoticons
 
-    # NRC Emotion Lexicon (2014)
-    with open('lexicons/NRC-emotion-lexicon-wordlevel-v0.92.txt', 'r') as f:
-        f.readline()
-        for line in f:
-            splitted = line.strip().split('\t')
-            if splitted[0] not in nrc_emotion:
-                nrc_emotion[splitted[0]] = {'anger': float(splitted[1]),
-                                                    'disgust': float(splitted[3]),
-                                                    'fear': float(splitted[4]),
-                                                    'joy': float(splitted[5]),
-                                                    'sadness': float(splitted[8]),
-                                                    'surprise': float(splitted[9])}
-
-    # NRC Affect Intensity (2018)
-    with open('lexicons/nrc_affect_intensity.txt', 'r') as f:
-        f.readline()
-        for line in f:
-            splitted = line.strip().split('\t')
-            if splitted[0] not in nrc_affect_intensity:
-                nrc_affect_intensity[splitted[0]] = {'anger': float(splitted[1]),
-                                                    'disgust': float(splitted[3]),
-                                                    'fear': float(splitted[4]),
-                                                    'joy': float(splitted[5]),
-                                                    'sadness': float(splitted[8]),
-                                                    'surprise': float(splitted[9])}
-
-    # NRC Hashtag Emotion Lexicon (2015)
-    with open('lexicons/NRC-Hashtag-Emotion-Lexicon-v0.2.txt', 'r') as f:
-        f.readline()
-        for line in f:
-            splitted = line.strip().split('\t')
-            splitted[0] = splitted[0].replace('#','')
-            if splitted[0] not in nrc_hashtag_emotion:
-                nrc_hashtag_emotion[splitted[0]] = {'anger': float(splitted[1]),
-                                                    'disgust': float(splitted[3]),
-                                                    'fear': float(splitted[4]),
-                                                    'joy': float(splitted[5]),
-                                                    'sadness': float(splitted[8]),
-                                                    'surprise': float(splitted[9])}
-
-
-    # BingLiu (2004) and MPQA (2005)
-    with open('lexicons/BingLiu.txt', 'r') as f:
-        for line in f:
-            splitted = line.strip().split('\t')
-            if splitted[0] not in bingliu_mpqa:
-                bingliu_mpqa[splitted[0]] = splitted[1]
-    with open('lexicons/mpqa.txt', 'r') as f:
-        for line in f:
-            splitted = line.strip().split('\t')
-            if splitted[0] not in bingliu_mpqa:
-                bingliu_mpqa[splitted[0]] = splitted[1]
-
-
-    with open('lexicons/AFINN-en-165.txt', 'r') as f:
-        for line in f:
-            splitted = line.strip().split('\t')
-            if splitted[0] not in afinn:
-                score = float(splitted[1])
-                normalized_score = (score - (-5)) / (5-(-5))
-                afinn[splitted[0]] = normalized_score
-
-
-    with open('lexicons/stopwords.txt', 'r') as f:
-        for line in f:
-            stopwords.append(line.strip())
-
-    with open('lexicons/slangs.txt', 'r') as f:
-        for line in f:
-            splitted = line.strip().split(',', 1)
-            slangs[splitted[0]] = splitted[1]
-
-    with open('lexicons/negated_words.txt', 'r') as f:
-        for line in f:
-            splitted = line.strip().split(',', 1)
-            negated[splitted[0]] = splitted[1]
-
-    with open('lexicons/emoticons.txt', 'r') as f:
-        for line in f:
-            emoticons.append(line.strip())
-load_lexicons()
 
 # ********* Helper Functions ********* #
 

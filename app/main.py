@@ -2,32 +2,15 @@ from process import *
 from EmotionHelpers import *
 from HedgeDetection import *
 
+from flask import current_app, g
+
 # Initializations
-hedges = []
-markers = []
-cues = []
-boosters = []
 NEGATIVE_EMOTIONS = ["anger", 'fear', "sadness"]
 QUES_TYPES = ["what", "when", "where", "who", "why", "how", "yesno", "mixed"]
 
 
 # Pre-trained model for emotion recognition
 # emotions = ['anger', 'emotion-not-listed', 'fear', 'happiness', 'NE', 'sadness']
-model = load_model(sys.argv[1])
-with open(sys.argv[2], 'rb') as f:
-    lb, tokenizer_tweets, max_tweet_length, tokenizer_hash_emo, max_hash_emo_length, embeddings_index = pickle.load(f)
-
-
-# Load pre-requisites
-with open("resources/booster_words.txt", 'r') as f:
-    for line in f:
-        if '#' not in line.strip():
-            boosters.append(line.strip())
-
-with open("resources/cues.txt", 'r') as f:
-    for line in f:
-        if '#' not in line.strip():
-            cues.append(line.strip())
 
 
 # Returns negative if given sentence contains negative emotion, otherwise returns positive

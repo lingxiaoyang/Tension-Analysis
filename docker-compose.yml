@@ -1,9 +1,22 @@
-version: "3.2"
+version: "3"
 services:
   app:
     build: ./app
+    container_name: app
+    depends_on: []
+    networks:
+      - tension_analysis_dev
     ports:
       - "5000:5000"
     volumes:
       - ./app:/srv/app
       - ./data:/srv/data
+  stanford_nlp:
+    build: ./stanford_nlp
+    container_name: stanford_nlp
+    expose:
+      - "9999"
+    networks:
+      - tension_analysis_dev
+networks:
+  tension_analysis_dev:

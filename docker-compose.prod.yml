@@ -4,6 +4,8 @@ services:
     restart: always
     build: ./app
     volumes:
+    deploy:
+      restart_policy:
   nginx:
     image: nginx
     restart: always
@@ -13,6 +15,8 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
     networks:
       - tension_analysis_internal
+    deploy:
+      restart_policy:
 volumes:
   data:
   unix_socket:
