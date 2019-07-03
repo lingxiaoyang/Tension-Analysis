@@ -1,27 +1,5 @@
-from packages import *
+from tension_analysis.packages import *
 
-from flask import current_app
-
-feature_dimension = 29
-
-# Vader
-analyzer = SentimentIntensityAnalyzer()
-
-def load_lexicons():
-
-    current_app.extensions['bingliu_mpqa'] = bingliu_mpqa
-    current_app.extensions['nrc_emotion'] = nrc_emotion
-    current_app.extensions['nrc_affect_intensity'] = nrc_affect_intensity
-    current_app.extensions['nrc_hashtag_emotion'] = nrc_hashtag_emotion
-    current_app.extensions['afinn'] = afinn
-    current_app.extensions['ratings'] = ratings
-    current_app.extensions['stopwords'] = stopwords
-    current_app.extensions['slangs'] = slangs
-    current_app.extensions['negated'] = negated
-    current_app.extensions['emoticons'] = emoticons
-
-
-# ********* Helper Functions ********* #
 
 def clean_texts(texts):
     cleaned_tweets = []
@@ -97,6 +75,8 @@ def clean_texts(texts):
 
 # This function returns a n-dimensional feature vector
 def feature_generation(texts, hashtags):
+    analyzer = SentimentIntensityAnalyzer()
+    feature_dimension = 29
     feature_vectors = []
 
     for i in range(len(texts)):

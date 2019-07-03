@@ -1,8 +1,6 @@
-from process import *
-from EmotionHelpers import *
-from HedgeDetection import *
-
-from flask import current_app, g
+from utils.preprocessing import Preprocessor
+from utils.emotion_helpers import *
+from utils.hedge_detection import *
 
 # Initializations
 NEGATIVE_EMOTIONS = ["anger", 'fear', "sadness"]
@@ -158,7 +156,7 @@ def tension_analysis(ques_ans):
 if __name__ == "__main__":
         print("Processing file...")
         try:
-            processor = Process(sys.argv[3])
+            processor = Preprocessor(sys.argv[3])
             processor.process_html()
             ques_ans = processor.extract_ques_ans()
         except:

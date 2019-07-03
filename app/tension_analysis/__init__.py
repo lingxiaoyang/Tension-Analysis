@@ -10,26 +10,23 @@ def create_app():
     The entrypoint: factory the Flask app to share with multiple instances.
     """
     app = Flask(__name__)
-    app.config['DATA_ROOT'] = '/srv/data/'
+    app.config.from_object('config')
+
     if not app.config['DATA_ROOT'].endswith('/'):
         app.config['DATA_ROOT'] += '/'
 
-    if not hasattr(app, 'extensions'):
-        app.extensions = {}
-
     try:
         with app.app_context():
-            import preload
+            from . import preload
     except Exception as e:
         exc_info = "{} {}\n{}\n".format(type(e), e, traceback.format_exc())
         app.logger.error(exc_info)
         return improperly_configured(app, exc_info)
 
-    @app.route("/")
-    def hello():
-        return "Hello World!"
-
+    from .views import views
+    app.register_blueprint(views)
     return app
+
 
 def improperly_configured(app, exc_info):
     """

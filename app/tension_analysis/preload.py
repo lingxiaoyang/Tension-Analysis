@@ -1,7 +1,8 @@
 import pickle
 
 from flask import current_app
-from process import *
+
+from .packages import *
 
 __all__ = [
     'model',

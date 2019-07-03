@@ -1,11 +1,10 @@
-from app.preload import discourse_markers, hedge_words, lmztr, nlp
-# ********* Initializations ********* #
-THRESHOLD = 0.8
+from flask import current_app
+
+from ..preload import discourse_markers, hedge_words, lmztr, nlp
 
 
 # ********* Disambiguate Hedge Terms ********* #
 # ********* Returns true if (hedge) token is true hedge term, otherwise, returns false ********* #
-
 def IsTrueHedgeTerm(hedge, text):
     exclude = set(string.punctuation)
 
@@ -117,7 +116,6 @@ def IsTrueHedgeTerm(hedge, text):
 
 # ********* Determines if a sentence is hedged sentence or not ********* #
 # ********* Returns true if sentence is hedged sentence, otherwise, returns false ********* #
-
 def IsHedgedSentence(text):
     exclude = set(string.punctuation)
     text = text.lower()
@@ -147,7 +145,7 @@ def IsHedgedSentence(text):
     if not status:
         for A in discourse_markers:
             for B in phrases:
-                if (1 - jaccard_distance(set(A.split()), set(list(B)))) >= THRESHOLD:
+                if (1 - jaccard_distance(set(A.split()), set(list(B)))) >= current_app.config['HEDGE_DETECTION_THRESHOLD']:
                     status = True
                     break
 

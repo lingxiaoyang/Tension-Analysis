@@ -5,9 +5,9 @@ the timestamps, some don't. In case, a transcript doesn't have the timestamp, it
 manually there in order to use the following procedure
 '''
 
-from packages import *
+from tension_analysis.packages import *
 
-class Process:
+class Preprocessor:
     def __init__(self, corpus):
         with open(corpus, "rb") as docx_file:
             self.html = mammoth.convert_to_html(docx_file).value
