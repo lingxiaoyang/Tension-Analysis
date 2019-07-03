@@ -1,6 +1,15 @@
-from utils.preprocessing import Preprocessor
-from utils.emotion_helpers import *
-from utils.hedge_detection import *
+import csv
+
+from nltk import sent_tokenize
+from nltk.tokenize import word_tokenize
+import numpy as np
+
+from .preload import (
+    boosters, cues, lb, max_hash_emo_length, max_tweet_length, model, tokenizer_hash_emo, tokenizer_tweets
+)
+from .utils.emotion_helpers import clean_texts, encode_text, feature_generation
+from .utils.hedge_detection import is_hedged_sentence
+from .utils.preprocessing import Preprocessor
 
 # Initializations
 NEGATIVE_EMOTIONS = ["anger", 'fear', "sadness"]
@@ -21,7 +30,7 @@ def get_emotion(sentence):
     evalX = encode_text(tokenizer_tweets, cleaned_sentences, max_tweet_length)
     encoded_hash_emo = encode_text(tokenizer_hash_emo, hash_emos, max_hash_emo_length)
 
-    predictedY = model.predict([evalX,encoded_hash_emo,features])
+    predictedY = model.predict([evalX, encoded_hash_emo, features])
     predicted_classes = lb.inverse_transform(predictedY)
     if predicted_classes[0] in NEGATIVE_EMOTIONS:
         return "negative"
@@ -74,7 +83,7 @@ def ques_statistics(pairs):
 # Returns True if sentence contains boosting, otherwise returns False
 # Input: Sentence
 # Output: True/False
-def IsBoosting(s):
+def is_boosting(s):
     for word in boosters:
         if word in s:
             list_of_words = s.split()
@@ -87,10 +96,11 @@ def IsBoosting(s):
             else:
                 return True
 
+
 # Generates a csv file containing identified tension points for the provided interview file
 # Input: List of question-answer pairs (Ex: [(q1,a1),(q2,a2),...])
 def tension_analysis(ques_ans):
-    with open(sys.argv[4], mode='w') as f:
+    with open('/tmp/path', mode='w') as f:
         writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['Content', 'Role', 'Predicted Label'])
 
@@ -111,10 +121,10 @@ def tension_analysis(ques_ans):
                 if get_emotion(s) == "negative":
                     isNegativeEmotion = True
 
-                if IsHedgedSentence(s):
+                if is_hedged_sentence(s):
                     isHedging = True
 
-                if IsBoosting(s):
+                if is_boosting(s):
                     isBoosting = True
 
             for cue in cues:
@@ -147,21 +157,25 @@ def tension_analysis(ques_ans):
             if number_of_words > mean + 3 * std or number_of_words < mean - 3 * std:
                 isOutlier = True
 
-            if (isNegativeEmotion and isHedging) or (isBoosting and isHedging) or (cuePresent and isHedging) or isQuestion or isOutlier:
+            if (isNegativeEmotion and isHedging) or \
+               (isBoosting and isHedging) or \
+               (cuePresent and isHedging) or \
+               isQuestion or \
+               isOutlier:
                 writer.writerow([pair[1], 'Interviewee', "Tension"])
             else:
                 writer.writerow([pair[1], 'Interviewee', "No Tension"])
 
 
-if __name__ == "__main__":
+if 1:
+    def process(file_path):
         print("Processing file...")
         try:
-            processor = Preprocessor(sys.argv[3])
+            processor = Preprocessor(file_path)
             processor.process_html()
             ques_ans = processor.extract_ques_ans()
-        except:
+        except Exception:
             print("Your file is not in the right format. Please provide valid file.")
-            sys.exit()
         print("Processing completed...")
 
         print("Analyzing...")

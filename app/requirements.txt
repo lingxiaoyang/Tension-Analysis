@@ -6,7 +6,8 @@ mammoth>=1.4,<1.4.99
 nltk>=3.4,<3.4.99
 numpy>=1.16,<1.16.99
 psutil>=5.6,<5.6.99
-requests>=2.22,<2.22.99
+# Keep scikit-learn at 0.19 because we're loading pickled data from this version.
 scikit-learn>=0.19.2,<0.19.99
+stanfordcorenlp>=3.9,<3.9.99
 tensorflow>=1.14,<1.14.99
 vaderSentiment>=3.2,<3.2.99

@@ -1,11 +1,17 @@
+import string
+
 from flask import current_app
 
-from ..preload import discourse_markers, hedge_words, lmztr, nlp
+from nltk import ngrams
+from nltk.metrics import jaccard_distance
+from nltk.tokenize import word_tokenize
+
+from ..preload import discourse_markers, hedge_words, lmtzr, nlp
 
 
 # ********* Disambiguate Hedge Terms ********* #
 # ********* Returns true if (hedge) token is true hedge term, otherwise, returns false ********* #
-def IsTrueHedgeTerm(hedge, text):
+def is_true_hedge_term(hedge, text):
     exclude = set(string.punctuation)
 
     if hedge == "assume":
@@ -116,8 +122,7 @@ def IsTrueHedgeTerm(hedge, text):
 
 # ********* Determines if a sentence is hedged sentence or not ********* #
 # ********* Returns true if sentence is hedged sentence, otherwise, returns false ********* #
-def IsHedgedSentence(text):
-    exclude = set(string.punctuation)
+def is_hedged_sentence(text):
     text = text.lower()
 
     if "n't" in text:
@@ -130,22 +135,22 @@ def IsHedgedSentence(text):
     status = False
 
     # Determine the n-grams of the given sentence
-    for i in range(1,6):
+    for i in range(1, 6):
         phrases += ngrams(tokenized, i)
 
     # Determine whether hedge terms are present in the sentence and find out if they are true hedge terms
     for hedge in hedge_words:
-        if hedge in tokenized and IsTrueHedgeTerm(hedge, text):
+        if hedge in tokenized and is_true_hedge_term(hedge, text):
             status = True
             break
-
 
     # Determine whether disocurse markers are present in the n-grams
     # Use Jaccard distance for measuring similarity
     if not status:
         for A in discourse_markers:
             for B in phrases:
-                if (1 - jaccard_distance(set(A.split()), set(list(B)))) >= current_app.config['HEDGE_DETECTION_THRESHOLD']:
+                distance = 1 - jaccard_distance(set(A.split()), set(list(B)))
+                if distance >= current_app.config['HEDGE_DETECTION_THRESHOLD']:
                     status = True
                     break
 

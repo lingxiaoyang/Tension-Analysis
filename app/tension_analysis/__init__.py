@@ -5,6 +5,7 @@ import traceback
 
 from flask import Flask
 
+
 def create_app():
     """
     The entrypoint: factory the Flask app to share with multiple instances.
@@ -17,7 +18,7 @@ def create_app():
 
     try:
         with app.app_context():
-            from . import preload
+            from . import preload  # noqa
     except Exception as e:
         exc_info = "{} {}\n{}\n".format(type(e), e, traceback.format_exc())
         app.logger.error(exc_info)

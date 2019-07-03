@@ -1,4 +1,18 @@
-from tension_analysis.packages import *
+import re
+
+import emoji
+from emoji.unicode_codes import UNICODE_EMOJI
+from keras.preprocessing.sequence import pad_sequences
+from keras.preprocessing.text import Tokenizer
+from nltk.tokenize import TweetTokenizer
+import numpy as np
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+
+from ..preload import (
+    afinn, bingliu_mpqa, emoticons, negated, nrc_affect_intensity, nrc_emotion, nrc_hashtag_emotion,
+    ratings, slangs, stopwords
+)
 
 
 def clean_texts(texts):
@@ -13,8 +27,6 @@ def clean_texts(texts):
         # Tokenize using tweet tokenizer
         tokenizer = TweetTokenizer(strip_handles=False, reduce_len=True)
         tokens = tokenizer.tokenize(text.lower())
-        lemmatizer = WordNetLemmatizer()
-
 
         # Emojis and emoticons
         if text_has_emoji(text):
@@ -32,7 +44,7 @@ def clean_texts(texts):
         temp = []
         for word in tokens:
             if '#' in word:
-                word = word.replace('#','')
+                word = word.replace('#', '')
                 hash_emo.append(word)
             else:
                 temp.append(word)
@@ -50,16 +62,16 @@ def clean_texts(texts):
         tokens = temp
 
         # Replace user names
-        tokens = ['<user>'  if '@' in word else word for word in tokens]
+        tokens = ['<user>' if '@' in word else word for word in tokens]
 
-        #Replace numbers
+        # Replace numbers
         tokens = ['<number>' if word.isdigit() else word for word in tokens]
 
         # Remove urls
         tokens = ['' if 'http' in word else word for word in tokens]
 
         # Lemmatize
-        #tokens = [lemmatizer.lemmatize(word) for word in tokens]
+        # tokens = [lemmatizer.lemmatize(word) for word in tokens]
 
         # Remove stop words
         tokens = [word for word in tokens if word not in stopwords]
@@ -123,7 +135,6 @@ def feature_generation(texts, hashtags):
                 else:
                     feats[20] += 1
 
-
         count = len(texts[i])
         if count == 0:
             count = 1
@@ -138,7 +149,7 @@ def feature_generation(texts, hashtags):
                 feats[22] = 1
 
         for word in hashtags[i]:
-            #NRC Hashtag Emotion
+            # NRC Hashtag Emotion
             if word in nrc_hashtag_emotion:
                 feats[23] += nrc_hashtag_emotion[word]['anger']
                 feats[24] += nrc_hashtag_emotion[word]['disgust']
@@ -166,8 +177,10 @@ def encode_text(tokenizer, lines, length):
     padded = pad_sequences(encoded, maxlen=length, padding='post')
     return padded
 
+
 def char_is_emoji(character):
     return character in emoji.UNICODE_EMOJI
+
 
 def text_has_emoji(text):
     for character in text:

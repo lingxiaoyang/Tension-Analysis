@@ -5,7 +5,9 @@ the timestamps, some don't. In case, a transcript doesn't have the timestamp, it
 manually there in order to use the following procedure
 '''
 
-from tension_analysis.packages import *
+from bs4 import BeautifulSoup
+import mammoth
+
 
 class Preprocessor:
     def __init__(self, corpus):
@@ -25,7 +27,7 @@ class Preprocessor:
                 if paragraphs[i].get_text().split()[0].count(':') == 2:
                     initial_time_index = i
                     break
-            except:
+            except Exception:
                 continue
 
         for i in range(initial_time_index + 1, len(paragraphs)):
@@ -45,7 +47,7 @@ class Preprocessor:
         checker = []
 
         for paragraph in paragraphs:
-            if paragraph.find('strong') != None:
+            if paragraph.find('strong') is not None:
                 checker.append(1)
             else:
                 checker.append(0)
@@ -59,7 +61,7 @@ class Preprocessor:
             else:
                 temp_list[len(temp_list) - 1] = temp_list[len(temp_list) - 1] + ' ' + paragraphs[i].get_text()
 
-        for i in range(0,len(temp_list),2):
+        for i in range(0, len(temp_list), 2):
             ques = temp_list[i].replace(temp_list[i].split()[0], '').strip()
             if i + 1 == len(temp_list):
                 ans = ''
