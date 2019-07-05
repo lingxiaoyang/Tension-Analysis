@@ -9,11 +9,9 @@ from bs4 import BeautifulSoup
 import mammoth
 
 
-class Preprocessor:
-    def __init__(self, corpus):
-        with open(corpus, "rb") as docx_file:
-            self.html = mammoth.convert_to_html(docx_file).value
-
+class Preprocessor(object):
+    def __init__(self, file_obj):
+        self.html = mammoth.convert_to_html(file_obj).value
         self.processed_html = ""
         self.ques_ans = []
 

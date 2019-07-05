@@ -3,8 +3,8 @@
 {% block content %}
 Hello {{ g.user_id }}!
 
-<form method="POST">
-  {% if errors.input_file %}<p>{{ errors.input_file }}</p>{% endif %}
+<form method="POST" enctype="multipart/form-data">
+  {% if errors.file %}<p>{{ errors.file }}</p>{% endif %}
   Input file: <input name="file" type="file" />
   <button type="submit">Submit</button>
 </form>

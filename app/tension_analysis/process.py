@@ -99,85 +99,86 @@ def is_boosting(s):
 
 # Generates a csv file containing identified tension points for the provided interview file
 # Input: List of question-answer pairs (Ex: [(q1,a1),(q2,a2),...])
-def tension_analysis(ques_ans):
-    with open('/tmp/path', mode='w') as f:
-        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['Content', 'Role', 'Predicted Label'])
+def tension_analysis(ques_ans, output_fileobj):
+    writer = csv.writer(output_fileobj, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    writer.writerow(['Content', 'Role', 'Predicted Label'])
 
-        stats = ques_statistics(ques_ans)
-        for pair in ques_ans:
-            ques = pair[0].lower()
-            ans = pair[1].lower()
-            sentences = sent_tokenize(ans)
-            writer.writerow([pair[0], 'Interviewer', "-"])
-            isNegativeEmotion = False
-            isHedging = False
-            isQuestion = False
-            isOutlier = False
-            isBoosting = False
-            cuePresent = False
+    stats = ques_statistics(ques_ans)
+    for pair in ques_ans:
+        ques = pair[0].lower()
+        ans = pair[1].lower()
+        sentences = sent_tokenize(ans)
+        writer.writerow([pair[0], 'Interviewer', "-"])
+        isNegativeEmotion = False
+        isHedging = False
+        isQuestion = False
+        isOutlier = False
+        isBoosting = False
+        cuePresent = False
 
-            for s in sentences[:5]:
-                if get_emotion(s) == "negative":
-                    isNegativeEmotion = True
+        for s in sentences[:5]:
+            if get_emotion(s) == "negative":
+                isNegativeEmotion = True
 
-                if is_hedged_sentence(s):
-                    isHedging = True
+            if is_hedged_sentence(s):
+                isHedging = True
 
-                if is_boosting(s):
-                    isBoosting = True
+            if is_boosting(s):
+                isBoosting = True
 
-            for cue in cues:
-                if cue in ans:
-                    cuePresent = True
+        for cue in cues:
+            if cue in ans:
+                cuePresent = True
 
-            for qt in ["what", "when", "where", "who", "why", "how"]:
-                if len(sentences) > 0 and qt in sentences[0] and "?" in sentences[0]:
-                    isQuestion = True
+        for qt in ["what", "when", "where", "who", "why", "how"]:
+            if len(sentences) > 0 and qt in sentences[0] and "?" in sentences[0]:
+                isQuestion = True
 
-            number_of_words = len(word_tokenize(ans))
-            counter = 0
-            found_type = ""
+        number_of_words = len(word_tokenize(ans))
+        counter = 0
+        found_type = ""
 
-            for type in QUES_TYPES:
-                if type in ques:
-                    counter += 1
-                    found_type = type
+        for type in QUES_TYPES:
+            if type in ques:
+                counter += 1
+                found_type = type
 
-            if counter == 0:
-                mean = stats["yesno"]["mean"]
-                std = stats["yesno"]["std"]
-            elif counter == 1:
-                mean = stats[found_type]["mean"]
-                std = stats[found_type]["std"]
-            else:
-                mean = stats["mixed"]["mean"]
-                std = stats["mixed"]["std"]
+        if counter == 0:
+            mean = stats["yesno"]["mean"]
+            std = stats["yesno"]["std"]
+        elif counter == 1:
+            mean = stats[found_type]["mean"]
+            std = stats[found_type]["std"]
+        else:
+            mean = stats["mixed"]["mean"]
+            std = stats["mixed"]["std"]
 
-            if number_of_words > mean + 3 * std or number_of_words < mean - 3 * std:
-                isOutlier = True
+        if number_of_words > mean + 3 * std or number_of_words < mean - 3 * std:
+            isOutlier = True
 
-            if (isNegativeEmotion and isHedging) or \
-               (isBoosting and isHedging) or \
-               (cuePresent and isHedging) or \
-               isQuestion or \
-               isOutlier:
-                writer.writerow([pair[1], 'Interviewee', "Tension"])
-            else:
-                writer.writerow([pair[1], 'Interviewee', "No Tension"])
+        if (isNegativeEmotion and isHedging) or \
+           (isBoosting and isHedging) or \
+           (cuePresent and isHedging) or \
+           isQuestion or \
+           isOutlier:
+            writer.writerow([pair[1], 'Interviewee', "Tension"])
+        else:
+            writer.writerow([pair[1], 'Interviewee', "No Tension"])
 
 
-if 1:
-    def process(file_path):
-        print("Processing file...")
-        try:
-            processor = Preprocessor(file_path)
-            processor.process_html()
-            ques_ans = processor.extract_ques_ans()
-        except Exception:
-            print("Your file is not in the right format. Please provide valid file.")
-        print("Processing completed...")
+def process(input_fileobj, output_fileobj):
+    try:
+        processor = Preprocessor(input_fileobj)
+        processor.process_html()
+        ques_ans = processor.extract_ques_ans()
+    except Exception as e:
+        raise InvalidInput("Your file is not in the right format. Please provide valid file.") from e
 
-        print("Analyzing...")
-        tension_analysis(ques_ans)
-        print("*** Analysis Completed ***")
+    try:
+        tension_analysis(ques_ans, output_fileobj)
+    except Exception as e:
+        raise
+
+
+class InvalidInput(Exception):
+    pass
