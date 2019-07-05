@@ -10,7 +10,7 @@ Follow the steps provided below in order to get everything set up:
 
 3. Copy `model.h5` into `data/models`.
 
-4. Copy `stanford-corenlp-full-2018-02-27.zip` into `data/resources` folder and unzip it.
+4. Copy `stanford-corenlp-full-2018-02-27.zip` into `stanford_corenlp` folder and unzip it.
 
 5. Run `docker-compose build`
 
