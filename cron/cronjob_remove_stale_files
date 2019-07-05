@@ -1,0 +1,3 @@
+# Remove old files after 24h every 04:00am
+# This will delete old files and old empty folders.
+0 4 * * * find /mnt/storage -mtime +1 -delete;

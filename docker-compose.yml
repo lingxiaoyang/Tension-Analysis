@@ -6,6 +6,7 @@ services:
     container_name: app
     depends_on:
       - stanford_corenlp
+      - cron
     networks:
       - tension_analysis_dev
     ports:
@@ -13,6 +14,12 @@ services:
     volumes:
       - ./app:/srv/app
       - ./data:/srv/data
+      - results_storage:/mnt/tension_analysis_results
+  cron:
+    build: ./cron
+    container_name: cron
+    volumes:
+      - results_storage:/mnt/storage
   stanford_corenlp:
     build: ./stanford_corenlp
     container_name: stanford_corenlp
@@ -22,3 +29,5 @@ services:
       - tension_analysis_dev
 networks:
   tension_analysis_dev:
+volumes:
+  results_storage:
