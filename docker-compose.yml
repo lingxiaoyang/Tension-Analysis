@@ -19,6 +19,11 @@ services:
     depends_on:
       - stanford_corenlp
       - cron
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://192.168.17.13:514"
+        syslog-facility: tension_analysis
     networks:
       - tension_analysis_dev
     restart: always
