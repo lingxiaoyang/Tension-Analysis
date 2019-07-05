@@ -5,7 +5,8 @@ from nltk.tokenize import word_tokenize
 import numpy as np
 
 from .preload import (
-    boosters, cues, lb, max_hash_emo_length, max_tweet_length, model, tokenizer_hash_emo, tokenizer_tweets
+    boosters, cues, graph, lb, max_hash_emo_length, max_tweet_length, model,
+    tokenizer_hash_emo, tokenizer_tweets
 )
 from .utils.emotion_helpers import clean_texts, encode_text, feature_generation
 from .utils.hedge_detection import is_hedged_sentence
@@ -30,7 +31,8 @@ def get_emotion(sentence):
     evalX = encode_text(tokenizer_tweets, cleaned_sentences, max_tweet_length)
     encoded_hash_emo = encode_text(tokenizer_hash_emo, hash_emos, max_hash_emo_length)
 
-    predictedY = model.predict([evalX, encoded_hash_emo, features])
+    with graph.as_default():
+        predictedY = model.predict([evalX, encoded_hash_emo, features])
     predicted_classes = lb.inverse_transform(predictedY)
     if predicted_classes[0] in NEGATIVE_EMOTIONS:
         return "negative"

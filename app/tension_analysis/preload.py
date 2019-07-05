@@ -6,10 +6,12 @@ from flask import current_app
 from keras.models import load_model
 from nltk.stem.wordnet import WordNetLemmatizer
 from stanfordcorenlp import StanfordCoreNLP
+import tensorflow as tf
 
 
 __all__ = [
     'model',
+    'graph',
     'lb',
     'tokenizer_tweets',
     'max_tweet_length',
@@ -37,7 +39,11 @@ __all__ = [
 # Pre-trained model
 current_app.logger.info('Loading pre-trained emotion recognition model...')
 
+# https://github.com/keras-team/keras/issues/2397#issuecomment-306687500
 model = load_model(current_app.config['DATA_ROOT'] + 'models/model.h5')
+model._make_predict_function()
+graph = tf.get_default_graph()
+
 with open(current_app.config['DATA_ROOT'] + 'models/variables-slim.p', 'rb') as f:
     lb, tokenizer_tweets, max_tweet_length, tokenizer_hash_emo, max_hash_emo_length = pickle.load(f)
 
@@ -198,4 +204,4 @@ load_hedge_lexicons()
 
 # Load NLP server Python interface
 current_app.logger.info('Loading StanfordCoreNLP Python interface...')
-nlp = StanfordCoreNLP('http://stanford_corenlp:9999', port=9999)
+nlp = StanfordCoreNLP('http://stanford_corenlp', port=9999)
