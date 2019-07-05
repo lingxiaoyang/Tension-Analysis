@@ -3,6 +3,11 @@
 {% block content %}
 Hello {{ g.user_id }}!
 
+{% if has_report %}
+<a href="{{ url_for('views.result') }}">Your previous analysis report</a>
+{% endif %}
+
+
 <form method="POST" enctype="multipart/form-data">
   {% if errors.file %}<p>{{ errors.file }}</p>{% endif %}
   Input file: <input name="file" type="file" />

@@ -204,4 +204,20 @@ load_hedge_lexicons()
 
 # Load NLP server Python interface
 current_app.logger.info('Loading StanfordCoreNLP Python interface...')
-nlp = StanfordCoreNLP('http://stanford_corenlp', port=9999)
+
+class MyStanfordCoreNLP(StanfordCoreNLP):
+    """
+    Customize dependency_parse method.
+    """
+    def dependency_parse(self, text):
+        # DEV: the arguments of following line will be changed after stanfordcorenlp-3.9.1.1
+        r_dict = self._request('depparse', text)
+        ls = []
+        for s in r_dict['sentences']:
+            tmp = []
+            for dep in s['basicDependencies']:
+                tmp.append((dep['dep'], dep['governorGloss'], dep['dependentGloss']))
+            ls.append(tmp)
+        return ls
+
+nlp = MyStanfordCoreNLP('http://stanford_corenlp', port=9999)

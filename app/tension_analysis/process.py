@@ -1,5 +1,7 @@
 import csv
 
+from flask import current_app
+
 from nltk import sent_tokenize
 from nltk.tokenize import word_tokenize
 import numpy as np
@@ -102,7 +104,7 @@ def is_boosting(s):
 # Generates a csv file containing identified tension points for the provided interview file
 # Input: List of question-answer pairs (Ex: [(q1,a1),(q2,a2),...])
 def tension_analysis(ques_ans, output_fileobj):
-    writer = csv.writer(output_fileobj, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    writer = csv.writer(output_fileobj, delimiter=current_app.config['CSV_DELIMITER'], quotechar=current_app.config['CSV_QUOTECHAR'], quoting=csv.QUOTE_MINIMAL)
     writer.writerow(['Content', 'Role', 'Predicted Label'])
 
     stats = ques_statistics(ques_ans)

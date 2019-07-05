@@ -1,5 +1,7 @@
 DEBUG = True
 
+CSV_DELIMITER = ','
+CSV_QUOTECHAR = '"'
 DATA_ROOT = '/srv/data'
 HEDGE_DETECTION_THRESHOLD = 0.8
 STORAGE_PATH = '/tmp/tension_analysis_results'

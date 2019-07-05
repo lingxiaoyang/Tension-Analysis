@@ -1,0 +1,39 @@
+{% extends '_base.html' %}
+
+{% block content %}
+
+{% if has_previous_page %}
+<a href="{{ url_for('views.result') }}?skip={{ skip - take }}&take={{ take }}">Previous Page</a>
+{% else %}
+<span>Previous Page</span>
+{% endif %}
+
+{% if has_next_page %}
+<a href="{{ url_for('views.result') }}?skip={{ skip + take }}&take={{ take }}">Next Page</a>
+{% else %}
+<span>Next Page</span>
+{% endif %}
+
+<table>
+  <thead>
+    <tr>
+      <th>Line #</th>
+      <th>Content</th>
+      <th>Role</th>
+      <th>Predicted Label</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line_num, content, role, predicted_label in lines %}
+    <tr>
+      <th>{{ line_num }}</th>
+      <td>{{ content }}</td>
+      <td>{{ role }}</td>
+      <td>{{ predicted_label }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{{ url_for('views.result_csv') }}">Download CSV</a>
+{% endblock %}
