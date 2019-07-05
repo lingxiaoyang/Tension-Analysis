@@ -1,23 +1,36 @@
 # docker-compose file for development setup
 version: "3"
 services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    depends_on:
+      - app
+    ports:
+      - "5000:80"  # Final port exposed to host
+    restart: always
+    volumes:
+      - ./app/static:/var/www/static
+      - unix_socket:/var/run/unix_socket
   app:
     build: ./app
+    command: uwsgi -s /var/run/unix_socket/tension_analysis.sock --manage-script-name --mount /=tension_analysis:create_app()
     container_name: app
     depends_on:
       - stanford_corenlp
       - cron
     networks:
       - tension_analysis_dev
-    ports:
-      - "5000:5000"
+    restart: always
     volumes:
       - ./app:/srv/app
       - ./data:/srv/data
       - results_storage:/mnt/tension_analysis_results
+      - unix_socket:/var/run/unix_socket
   cron:
     build: ./cron
     container_name: cron
+    restart: always
     volumes:
       - results_storage:/mnt/storage
   stanford_corenlp:
@@ -27,7 +40,9 @@ services:
       - "9999"
     networks:
       - tension_analysis_dev
+    restart: always
 networks:
   tension_analysis_dev:
 volumes:
   results_storage:
+  unix_socket:
