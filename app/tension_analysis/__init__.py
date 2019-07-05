@@ -25,22 +25,8 @@ def create_app():
     except Exception as e:
         exc_info = "{} {}\n{}\n".format(type(e), e, traceback.format_exc())
         app.logger.error(exc_info)
-        return improperly_configured(app, exc_info)
+        raise
 
     from .views import views
     app.register_blueprint(views)
-    return app
-
-
-def improperly_configured(app, exc_info):
-    """
-    Return a premature app serving error messages via HTTP (if debug) instead of failing directly.
-    """
-    @app.route("/")
-    def error_index_page():
-        lines = ["Tension Analysis app was improperly configured."]
-        if app.debug:
-            lines += [exc_info]
-        return '\n'.join(lines), {'Content-Type': 'text/plain'}
-
     return app
