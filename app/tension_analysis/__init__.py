@@ -16,6 +16,9 @@ def create_app():
     if not app.config['DATA_ROOT'].endswith('/'):
         app.config['DATA_ROOT'] += '/'
 
+    if not hasattr(app, 'preload'):
+        app.preload = {}
+
     try:
         with app.app_context():
             from . import preload  # noqa
@@ -41,8 +44,3 @@ def improperly_configured(app, exc_info):
         return '\n'.join(lines), {'Content-Type': 'text/plain'}
 
     return app
-
-
-if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True, host='0.0.0.0')
