@@ -6,6 +6,11 @@ services:
     container_name: nginx
     depends_on:
       - app
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:514"
+        syslog-facility: local2
     ports:
       - "5000:80"  # Final port exposed to host
     restart: always
@@ -22,8 +27,8 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://192.168.17.13:514"
-        syslog-facility: tension_analysis
+        syslog-address: "udp://127.0.0.1:514"
+        syslog-facility: local2
     networks:
       - tension_analysis_dev
     restart: always
@@ -35,6 +40,11 @@ services:
   cron:
     build: ./cron
     container_name: cron
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:514"
+        syslog-facility: local2
     restart: always
     volumes:
       - results_storage:/mnt/storage
@@ -43,6 +53,11 @@ services:
     container_name: stanford_corenlp
     expose:
       - "9999"
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:514"
+        syslog-facility: local2
     networks:
       - tension_analysis_dev
     restart: always
