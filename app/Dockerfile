@@ -2,9 +2,8 @@
 FROM python:3.7
 RUN apt-get clean
 RUN apt-get -y update
-RUN apt-get -y install python3-pip default-jre
+RUN apt-get -y install python3-pip
 ADD requirements.txt /
 RUN pip3 install -r /requirements.txt
-RUN python3 -c "import nltk; nltk.download('punkt'); nltk.download('wordnet'); exit()"
 RUN pip3 install uwsgi
 WORKDIR /srv/app

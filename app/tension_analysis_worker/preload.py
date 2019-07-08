@@ -1,13 +1,18 @@
 import csv
+import logging
+from pathlib import Path
 import pickle
-
-from flask import current_app
 
 from keras.models import load_model
 from nltk.stem.wordnet import WordNetLemmatizer
 from stanfordcorenlp import StanfordCoreNLP
 import tensorflow as tf
 
+import global_config
+
+
+logger = logging.getLogger(__name__)
+DATA_ROOT = Path(global_config.DATA_ROOT)
 
 __all__ = [
     'model',
@@ -37,31 +42,31 @@ __all__ = [
 
 
 # Pre-trained model
-current_app.logger.info('Loading pre-trained emotion recognition model...')
+logger.info('Loading pre-trained emotion recognition model...')
 
 # https://github.com/keras-team/keras/issues/2397#issuecomment-306687500
-model = load_model(current_app.config['DATA_ROOT'] + 'models/model.h5')
+model = load_model(str(DATA_ROOT / 'models/model.h5'))
 model._make_predict_function()
 graph = tf.get_default_graph()
 
-with open(current_app.config['DATA_ROOT'] + 'models/variables-slim.p', 'rb') as f:
+with open(DATA_ROOT / 'models/variables-slim.p', 'rb') as f:
     lb, tokenizer_tweets, max_tweet_length, tokenizer_hash_emo, max_hash_emo_length = pickle.load(f)
 
 boosters = []
-with open(current_app.config['DATA_ROOT'] + "resources/booster_words.txt", 'r') as f:
+with open(DATA_ROOT / "resources/booster_words.txt", 'r') as f:
     for line in f:
         if '#' not in line.strip():
             boosters.append(line.strip())
 
 cues = []
-with open(current_app.config['DATA_ROOT'] + "resources/cues.txt", 'r') as f:
+with open(DATA_ROOT / "resources/cues.txt", 'r') as f:
     for line in f:
         if '#' not in line.strip():
             cues.append(line.strip())
 
 
 # Emotion lexicons
-current_app.logger.info('Loading emotion lexicons...')
+logger.info('Loading emotion lexicons...')
 
 bingliu_mpqa = {}
 nrc_emotion = {}
@@ -77,7 +82,7 @@ emoticons = []
 
 def load_emotion_lexicons():
     # Ratings by Warriner et al. (2013)
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/Ratings_Warriner_et_al.csv', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/Ratings_Warriner_et_al.csv', 'r') as f:
         reader = csv.reader(f)
         rows = list(reader)
     for i in range(1, len(rows)):
@@ -88,7 +93,7 @@ def load_emotion_lexicons():
         ratings[rows[i][1]] = {"Valence": valence, "Arousal": arousal, "Dominance": dominance}
 
     # NRC Emotion Lexicon (2014)
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/NRC-emotion-lexicon-wordlevel-v0.92.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/NRC-emotion-lexicon-wordlevel-v0.92.txt', 'r') as f:
         f.readline()
         for line in f:
             splitted = line.strip().split('\t')
@@ -103,7 +108,7 @@ def load_emotion_lexicons():
                 }
 
     # NRC Affect Intensity (2018)
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/nrc_affect_intensity.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/nrc_affect_intensity.txt', 'r') as f:
         f.readline()
         for line in f:
             splitted = line.strip().split('\t')
@@ -118,7 +123,7 @@ def load_emotion_lexicons():
                 }
 
     # NRC Hashtag Emotion Lexicon (2015)
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/NRC-Hashtag-Emotion-Lexicon-v0.2.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/NRC-Hashtag-Emotion-Lexicon-v0.2.txt', 'r') as f:
         f.readline()
         for line in f:
             splitted = line.strip().split('\t')
@@ -134,18 +139,18 @@ def load_emotion_lexicons():
                 }
 
     # BingLiu (2004) and MPQA (2005)
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/BingLiu.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/BingLiu.txt', 'r') as f:
         for line in f:
             splitted = line.strip().split('\t')
             if splitted[0] not in bingliu_mpqa:
                 bingliu_mpqa[splitted[0]] = splitted[1]
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/mpqa.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/mpqa.txt', 'r') as f:
         for line in f:
             splitted = line.strip().split('\t')
             if splitted[0] not in bingliu_mpqa:
                 bingliu_mpqa[splitted[0]] = splitted[1]
 
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/AFINN-en-165.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/AFINN-en-165.txt', 'r') as f:
         for line in f:
             splitted = line.strip().split('\t')
             if splitted[0] not in afinn:
@@ -153,21 +158,21 @@ def load_emotion_lexicons():
                 normalized_score = (score - (-5)) / (5-(-5))
                 afinn[splitted[0]] = normalized_score
 
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/stopwords.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/stopwords.txt', 'r') as f:
         for line in f:
             stopwords.append(line.strip())
 
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/slangs.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/slangs.txt', 'r') as f:
         for line in f:
             splitted = line.strip().split(',', 1)
             slangs[splitted[0]] = splitted[1]
 
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/negated_words.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/negated_words.txt', 'r') as f:
         for line in f:
             splitted = line.strip().split(',', 1)
             negated[splitted[0]] = splitted[1]
 
-    with open(current_app.config['DATA_ROOT'] + 'lexicons/emoticons.txt', 'r') as f:
+    with open(DATA_ROOT / 'lexicons/emoticons.txt', 'r') as f:
         for line in f:
             emoticons.append(line.strip())
 
@@ -176,7 +181,7 @@ load_emotion_lexicons()
 
 
 # Load hedge lexicons
-current_app.logger.info('Loading hedge lexicons...')
+logger.info('Loading hedge lexicons...')
 
 lmtzr = WordNetLemmatizer()
 hedge_words = []
@@ -184,14 +189,14 @@ discourse_markers = []
 
 
 def load_hedge_lexicons():
-    with open(current_app.config['DATA_ROOT'] + "resources/hedge_words.txt", "r") as f:
+    with open(DATA_ROOT / "resources/hedge_words.txt", "r") as f:
         for line in f:
             if '#' in line:
                 continue
             elif line.strip() != "":
                 hedge_words.append(line.strip())
 
-    with open(current_app.config['DATA_ROOT'] + "resources/discourse_markers.txt", "r") as f:
+    with open(DATA_ROOT / "resources/discourse_markers.txt", "r") as f:
         for line in f:
             if '#' in line:
                 continue
@@ -203,7 +208,8 @@ load_hedge_lexicons()
 
 
 # Load NLP server Python interface
-current_app.logger.info('Loading StanfordCoreNLP Python interface...')
+logger.info('Loading StanfordCoreNLP Python interface...')
+
 
 class MyStanfordCoreNLP(StanfordCoreNLP):
     """
@@ -219,5 +225,6 @@ class MyStanfordCoreNLP(StanfordCoreNLP):
                 tmp.append((dep['dep'], dep['governorGloss'], dep['dependentGloss']))
             ls.append(tmp)
         return ls
+
 
 nlp = MyStanfordCoreNLP('http://stanford_corenlp', port=9999)

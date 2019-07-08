@@ -1,6 +1,19 @@
 # docker-compose file for development setup
 version: "3"
 services:
+  worker:
+    build:
+      context: ./app
+      dockerfile: Dockerfile_worker
+    command: python3 run_worker.py
+    container_name: worker
+    networks:
+      - tension_analysis_dev
+    restart: always
+    volumes:
+      - results_storage:/mnt/tension_analysis_results
+      - ./app:/srv/app
+      - ./data:/srv/data
   nginx:
     build: ./nginx
     container_name: nginx
@@ -24,11 +37,6 @@ services:
     depends_on:
       - stanford_corenlp
       - cron
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "udp://127.0.0.1:514"
-        syslog-facility: local2
     networks:
       - tension_analysis_dev
     restart: always
@@ -40,11 +48,6 @@ services:
   cron:
     build: ./cron
     container_name: cron
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "udp://127.0.0.1:514"
-        syslog-facility: local2
     restart: always
     volumes:
       - results_storage:/mnt/storage

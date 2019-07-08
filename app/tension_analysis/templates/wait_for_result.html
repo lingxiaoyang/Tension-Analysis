@@ -1,0 +1,17 @@
+{% extends '_base.html' %}
+
+{% block content %}
+
+{% if percentage == 0 %}
+<p>The report is scheduled. Please wait.</p>
+{% else %}
+<p>Progress: {{ percentage }}%</p>
+{% endif %}
+
+<script>
+ window.onload = function () {
+   setTimeout(function () {location.reload(true);}, 5000);
+ };
+</script>
+
+{% endblock %}

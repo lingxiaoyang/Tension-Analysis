@@ -1,10 +1,10 @@
 import csv
 
-from flask import current_app
-
 from nltk import sent_tokenize
 from nltk.tokenize import word_tokenize
 import numpy as np
+
+import global_config
 
 from .preload import (
     boosters, cues, graph, lb, max_hash_emo_length, max_tweet_length, model,
@@ -12,7 +12,7 @@ from .preload import (
 )
 from .utils.emotion_helpers import clean_texts, encode_text, feature_generation
 from .utils.hedge_detection import is_hedged_sentence
-from .utils.preprocessing import Preprocessor
+
 
 # Initializations
 NEGATIVE_EMOTIONS = ["anger", 'fear', "sadness"]
@@ -103,12 +103,19 @@ def is_boosting(s):
 
 # Generates a csv file containing identified tension points for the provided interview file
 # Input: List of question-answer pairs (Ex: [(q1,a1),(q2,a2),...])
-def tension_analysis(ques_ans, output_fileobj):
-    writer = csv.writer(output_fileobj, delimiter=current_app.config['CSV_DELIMITER'], quotechar=current_app.config['CSV_QUOTECHAR'], quoting=csv.QUOTE_MINIMAL)
+def tension_analysis(ques_ans, output_fileobj, update_percentage):
+    update_percentage(1)
+    writer = csv.writer(
+        output_fileobj,
+        delimiter=global_config.CSV_DELIMITER,
+        quotechar=global_config.CSV_QUOTECHAR,
+        quoting=csv.QUOTE_MINIMAL
+    )
     writer.writerow(['Content', 'Role', 'Predicted Label'])
 
     stats = ques_statistics(ques_ans)
-    for pair in ques_ans:
+    total = len(ques_ans)
+    for i, pair in enumerate(ques_ans, 1):
         ques = pair[0].lower()
         ans = pair[1].lower()
         sentences = sent_tokenize(ans)
@@ -168,21 +175,4 @@ def tension_analysis(ques_ans, output_fileobj):
             writer.writerow([pair[1], 'Interviewee', "Tension"])
         else:
             writer.writerow([pair[1], 'Interviewee', "No Tension"])
-
-
-def process(input_fileobj, output_fileobj):
-    try:
-        processor = Preprocessor(input_fileobj)
-        processor.process_html()
-        ques_ans = processor.extract_ques_ans()
-    except Exception as e:
-        raise InvalidInput("Your file is not in the right format. Please provide valid file.") from e
-
-    try:
-        tension_analysis(ques_ans, output_fileobj)
-    except Exception as e:
-        raise
-
-
-class InvalidInput(Exception):
-    pass
+        update_percentage(int(1 + float(i) / total * 99.0))

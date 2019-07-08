@@ -2,7 +2,9 @@ from functools import wraps
 import re
 import uuid
 
-from flask import current_app, g, make_response, request
+from flask import g, make_response, request
+
+import global_config
 
 RE_UUID_HEX = re.compile('^[0-9a-f]{32}$')
 
@@ -10,7 +12,7 @@ RE_UUID_HEX = re.compile('^[0-9a-f]{32}$')
 def ensure_user_cookie(f):
     @wraps(f)
     def decorated_function(*a, **k):
-        cookie_name = current_app.config['USER_IDENTIFICATION_COOKIE_NAME']
+        cookie_name = global_config.USER_IDENTIFICATION_COOKIE_NAME
         g.user_id = request.cookies.get(cookie_name)
         if not RE_UUID_HEX.match(str(g.user_id)):
             g.user_id = uuid.uuid4().hex

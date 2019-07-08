@@ -3,10 +3,9 @@
 {% block content %}
 Hello {{ g.user_id }}!
 
-{% if has_report %}
-<a href="{{ url_for('views.result') }}">Your previous analysis report</a>
-{% endif %}
-
+<p>Status: {{ status }}</p>
+<p>Message: {{ message }}</p>
+<a href="{{ url_for('views.result') }}">Your analysis report</a>
 
 <form method="POST" enctype="multipart/form-data">
   {% if errors.file %}<p>{{ errors.file }}</p>{% endif %}

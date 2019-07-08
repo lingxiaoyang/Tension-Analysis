@@ -1,4 +1,4 @@
-DEBUG = True
+DEBUG = False
 
 CSV_DELIMITER = ','
 CSV_QUOTECHAR = '"'

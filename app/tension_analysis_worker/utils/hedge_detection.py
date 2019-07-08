@@ -1,10 +1,10 @@
 import string
 
-from flask import current_app
-
 from nltk import ngrams
 from nltk.metrics import jaccard_distance
 from nltk.tokenize import word_tokenize
+
+import global_config
 
 from ..preload import discourse_markers, hedge_words, lmtzr, nlp
 
@@ -150,7 +150,7 @@ def is_hedged_sentence(text):
         for A in discourse_markers:
             for B in phrases:
                 distance = 1 - jaccard_distance(set(A.split()), set(list(B)))
-                if distance >= current_app.config['HEDGE_DETECTION_THRESHOLD']:
+                if distance >= global_config.HEDGE_DETECTION_THRESHOLD:
                     status = True
                     break
 
