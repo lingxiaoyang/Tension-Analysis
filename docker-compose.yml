@@ -1,6 +1,17 @@
 # docker-compose file for development setup
 version: "3"
 services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    depends_on:
+      - app
+    ports:
+      - "5000:80"  # Final port exposed to host
+    restart: always
+    volumes:
+      - ./app/static:/var/www/static
+      - unix_socket:/var/run/unix_socket
   worker:
     build:
       context: ./app
@@ -14,25 +25,9 @@ services:
       - results_storage:/mnt/tension_analysis_results
       - ./app:/srv/app
       - ./data:/srv/data
-  nginx:
-    build: ./nginx
-    container_name: nginx
-    depends_on:
-      - app
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "udp://127.0.0.1:514"
-        syslog-facility: local2
-    ports:
-      - "5000:80"  # Final port exposed to host
-    restart: always
-    volumes:
-      - ./app/static:/var/www/static
-      - unix_socket:/var/run/unix_socket
   app:
     build: ./app
-    command: uwsgi -s /var/run/unix_socket/tension_analysis.sock --manage-script-name --mount /=tension_analysis:create_app()
+    command: uwsgi --disable-logging -s /var/run/unix_socket/tension_analysis.sock --manage-script-name --mount /=tension_analysis:create_app()
     container_name: app
     depends_on:
       - stanford_corenlp
