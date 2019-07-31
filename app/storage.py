@@ -119,11 +119,11 @@ class _open_user_file_w(_open_user_file_r):
 _UUID_REGEX = re.compile('^[0-9a-f]{32}$')
 _PROCESS_IDENTIFIER = uuid.uuid4().hex
 _QUEUE_FOLDER_PATH = Path(global_config.STORAGE_PATH) / 'queue'
-if not _QUEUE_FOLDER_PATH.is_dir():
-    _QUEUE_FOLDER_PATH.mkdir(parents=True)
 
 
 def add_to_queue(user_id):
+    if not _QUEUE_FOLDER_PATH.is_dir():
+        _QUEUE_FOLDER_PATH.mkdir(parents=True)
     item_path = _QUEUE_FOLDER_PATH / str(user_id)
     _remove_if_not_regular_file(item_path)
     try:
@@ -150,6 +150,8 @@ class take_from_queue(object):
         self.user_id = None
 
     def __enter__(self):
+        if not _QUEUE_FOLDER_PATH.is_dir():
+            _QUEUE_FOLDER_PATH.mkdir(parents=True)
         children = [c for c in _QUEUE_FOLDER_PATH.iterdir() if _UUID_REGEX.match(c.name)]
         children.sort(key=lambda c: c.stat().st_mtime)  # old to new
         for c in children:

@@ -6,6 +6,9 @@ services:
     container_name: nginx
     depends_on:
       - app
+    logging:
+      options:
+        max-size: 10m
     ports:
       - "5000:80"  # Final port exposed to host
     restart: always
@@ -18,6 +21,9 @@ services:
       dockerfile: Dockerfile_worker
     command: python3 run_worker.py
     container_name: worker
+    logging:
+      options:
+        max-size: 10m
     networks:
       - tension_analysis_dev
     restart: always
@@ -32,6 +38,9 @@ services:
     depends_on:
       - stanford_corenlp
       - cron
+    logging:
+      options:
+        max-size: 10m
     networks:
       - tension_analysis_dev
     restart: always
@@ -43,6 +52,9 @@ services:
   cron:
     build: ./cron
     container_name: cron
+    logging:
+      options:
+        max-size: 10m
     restart: always
     volumes:
       - results_storage:/mnt/storage
@@ -52,10 +64,8 @@ services:
     expose:
       - "9999"
     logging:
-      driver: syslog
       options:
-        syslog-address: "udp://127.0.0.1:514"
-        syslog-facility: local2
+        max-size: 10m
     networks:
       - tension_analysis_dev
     restart: always
