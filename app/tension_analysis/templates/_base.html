@@ -1,11 +1,37 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="../../static/mini-default.css">
     <title>Tension Analysis</title>
   </head>
   <body>
+      <header class="sticky row">
+    <div class="col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+<!--       <label for="drawer-checkbox" class="button drawer-toggle"></label> -->
+      <a href="index.html" class="button hidden-sm">Living Archives</a>
+      <a href="blog.html" class="button hidden-sm">Tools</a>
+      <a href="contact.html" class="button hidden-sm">Repository</a>
+    </div>
+  </header>
+  <!--  This is the hamburger menu for mobile screens. Standard navigation, really!  -->
+<!--   <input type="checkbox" id="drawer-checkbox"> -->
+  <nav class="drawer hidden-md hidden-lg">
+<!--     <label for="drawer-checkbox" class="close"></label> -->
+    <h4><a href="http://livingarchivesvivantes.org/">Living Archives</a></h4>
+    <h4><a href="http://livingarchivesvivantes.org/tools/">Tools</a></h4>
+    <h4><a href="https://github.com/mat3rial/Tension-Analysis">Repository</a></h4>
+  </nav>
+<!--   real content -->
+<!--  The container of the grid system and all of the content appears below.  -->
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+        <br/>
     <h1>Tension Analysis</h1>
     {% block content %}
     {% endblock %}
+      </div>
+    </div>
+  </div>
   </body>
 </html>

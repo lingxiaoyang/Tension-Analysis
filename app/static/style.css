@@ -1,0 +1,9 @@
+@import url('fonts/borgiapro/stylesheet.css');
+@import url('fonts/hk_grotesk/stylesheet.css');
+@import url('mini-default.css');
+
+h1 {
+    font-size: 40pt;
+    text-align: center;
+    font-family: 'BorgiaPro-Regular' !important;
+}

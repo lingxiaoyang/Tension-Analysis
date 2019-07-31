@@ -1,9 +1,10 @@
 {% extends '_base.html' %}
 
 {% block content %}
-Hello {{ g.user_id }}!
-
-<p>Status: {{ status }}</p>
+<!-- Hello {{ g.user_id }}! -->
+<p><strong>Tension Analysis</strong> aims to identify the tensions in transcribed and translated interview transcripts by leveraging a list of potential indicators of tension including the use of hedging and boosting in the language, the sign of reticence, and emotion of the interviewees from their interview responses. We also consider prosodic cues such as laugh and silence as signs of reticence. This tool also identifies traces of tension in the situations when an interviewee gives unusually long or short answers for a specific question type. In summary, this tool identifies possible tension places which the researchers can review to identify the actual tension occurrences.</p>
+<hr>
+<p>App status: {{ status }}</p>
 <p>Message: {{ message }}</p>
 <a href="{{ url_for('views.result') }}">Your analysis report</a>
 
